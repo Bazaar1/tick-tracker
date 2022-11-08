@@ -35,11 +35,6 @@ import static net.runelite.api.GameState.*;
 @Getter @Setter
 public class TickTrackerPlugin extends Plugin
 {
-	private void sendChatMessage(String chatMessage)
-	{
-		final String message = new ChatMessageBuilder().append(ChatColorType.HIGHLIGHT).append(chatMessage).build();
-		chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.CONSOLE).runeLiteFormattedMessage(message).build());
-	}
 
 	@Inject
 	private Client client;
@@ -112,34 +107,12 @@ public class TickTrackerPlugin extends Plugin
 		}
 
 		long tickVarianceFromIdealMS = Math.abs(IDEAL_TICK_LENGTH_NS - tickDiffNS) / NANOS_PER_MILLIS;
+		
+		Log.w(tickDiffNS)
+		Log.w(runningTickAverageNS)
+		Log.w(tickTimePassedNS)
 
-		if (tickVarianceFromIdealMS > config.warnLargeTickDiffValue())
-		{
-			if (config.warnLargeTickDiff() &&  allTickCounter > config.disregardTickCounter())
-			{
-				sendChatMessage("Tick was " + tickDiffNS / NANOS_PER_MILLIS + "ms long");
-			}
-		}
-
-		if (tickVarianceFromIdealMS > config.getThresholdHigh())
-		{
-			tickOverThresholdHigh += 1;
-		}
-		else if (tickVarianceFromIdealMS > config.getThresholdMedium())
-		{
-			tickOverThresholdMedium += 1;
-		}
-		else if (tickVarianceFromIdealMS > config.getThresholdLow())
-		{
-			tickOverThresholdLow += 1;
-		}
-		else
-		{
-			tickWithinRange += 1;
-		}
-
-		allTickCounter += 1;
-		tickTimePassedNS += tickDiffNS;
+		tickDiffNS += tickDiffNS;
 		runningTickAverageNS = tickTimePassedNS / allTickCounter;
 		tickWithinRangePercent = (tickWithinRange * 100.0) / allTickCounter;
 	}
